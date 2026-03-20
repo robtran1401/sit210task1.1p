@@ -32,8 +32,7 @@ const unsigned long hallDuration = 60000;
 bool systemActive = false;
 unsigned long startTime = 0;
 
-void setup() 
-{
+void setup() {
   pinMode(buttonPin, INPUT_PULLUP);
   pinMode(porchLightPin, OUTPUT);
   pinMode(hallLightPin, OUTPUT);
@@ -43,24 +42,21 @@ void setup()
 }
 
 void loop() {
-  if (digitalRead(buttonPin) == LOW && !systemActive) 
-  {
+  if (digitalRead(buttonPin) == LOW && !systemActive) {
     systemActive = true;
     startTime = millis();
     digitalWrite(porchLightPin, HIGH);
     digitalWrite(hallLightPin, HIGH);
   }
 
-  if (systemActive) 
-  {
+  if (systemActive) {
     unsigned long elapsed = millis() - startTime;
 
     if (elapsed >= porchDuration) {
       digitalWrite(porchLightPin, LOW);
     }
 
-    if (elapsed >= hallDuration) 
-    {
+    if (elapsed >= hallDuration) {
       digitalWrite(hallLightPin, LOW);
       systemActive = false;
     }
