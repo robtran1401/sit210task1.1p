@@ -21,3 +21,48 @@ The program is divided into smaller functions to improve readability and usabili
 - `turnOnHallwayLight()` switches on the hallway light and records its start time.
 - `updatePorchLight()` checks whether the porch light should turn off after 30 seconds.
 - `updateHallwayLight()` checks whether the hallway light should turn off after 60 seconds.
+## Code
+const int buttonPin = 2;
+const int porchLightPin = 5;
+const int hallLightPin = 6;
+
+const unsigned long porchDuration = 30000;
+const unsigned long hallDuration = 60000;
+
+bool systemActive = false;
+unsigned long startTime = 0;
+
+void setup() 
+{
+  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(porchLightPin, OUTPUT);
+  pinMode(hallLightPin, OUTPUT);
+
+  digitalWrite(porchLightPin, LOW);
+  digitalWrite(hallLightPin, LOW);
+}
+
+void loop() {
+  if (digitalRead(buttonPin) == LOW && !systemActive) 
+  {
+    systemActive = true;
+    startTime = millis();
+    digitalWrite(porchLightPin, HIGH);
+    digitalWrite(hallLightPin, HIGH);
+  }
+
+  if (systemActive) 
+  {
+    unsigned long elapsed = millis() - startTime;
+
+    if (elapsed >= porchDuration) {
+      digitalWrite(porchLightPin, LOW);
+    }
+
+    if (elapsed >= hallDuration) 
+    {
+      digitalWrite(hallLightPin, LOW);
+      systemActive = false;
+    }
+  }
+}
