@@ -1,4 +1,3 @@
-## Code
 const int buttonPin = 2;
 const int porchLightPin = 5;
 const int hallLightPin = 6;
@@ -9,7 +8,8 @@ const unsigned long hallDuration = 60000;
 bool systemActive = false;
 unsigned long startTime = 0;
 
-void setup() 
+// Sets up all pin modes and initial light states
+void setupPins() 
 {
   pinMode(buttonPin, INPUT_PULLUP);
   pinMode(porchLightPin, OUTPUT);
@@ -19,26 +19,45 @@ void setup()
   digitalWrite(hallLightPin, LOW);
 }
 
-void loop() {
-  if (digitalRead(buttonPin) == LOW && !systemActive) 
 {
-    systemActive = true;
-    startTime = millis();
-    digitalWrite(porchLightPin, HIGH);
-    digitalWrite(hallLightPin, HIGH);
+  systemActive = true;
+  startTime = millis();
+  digitalWrite(porchLightPin, HIGH);
+  digitalWrite(hallLightPin, HIGH);
 }
 
+// Checks if the button is pressed
+bool isButtonPressed() 
+{
+  return digitalRead(buttonPin) == LOW;
+}
+void updateLights() 
+{
+  unsigned long elapsed = millis() - startTime;
+
+  if (elapsed >= porchDuration) {
+    digitalWrite(porchLightPin, LOW);
+  }
+
+  if (elapsed >= hallDuration) {
+    digitalWrite(hallLightPin, LOW);
+    systemActive = false;
+  }
+}
+
+void setup() 
+{
+  setupPins();
+}
+
+void loop() 
+  {
+    if (isButtonPressed() && !systemActive) {
+    activateSystem();
+  }
+
   if (systemActive) 
-    {
-    unsigned long elapsed = millis() - startTime;
-
-    if (elapsed >= porchDuration) {
-      digitalWrite(porchLightPin, LOW);
-    }
-
-    if (elapsed >= hallDuration) {
-      digitalWrite(hallLightPin, LOW);
-      systemActive = false;
-    }
+{
+    updateLights();
   }
 }
