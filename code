@@ -1,4 +1,4 @@
-const int buttonPin = 2;
+const int switchPin = 2;
 const int porchLightPin = 5;
 const int hallLightPin = 6;
 
@@ -6,58 +6,65 @@ const unsigned long porchDuration = 30000;
 const unsigned long hallDuration = 60000;
 
 bool systemActive = false;
+bool lastSwitchState = HIGH;
 unsigned long startTime = 0;
 
-// Sets up all pin modes and initial light states
-void setupPins() 
-{
-  pinMode(buttonPin, INPUT_PULLUP);
+void setupPins() {
+  pinMode(switchPin, INPUT_PULLUP);
   pinMode(porchLightPin, OUTPUT);
   pinMode(hallLightPin, OUTPUT);
 
   digitalWrite(porchLightPin, LOW);
   digitalWrite(hallLightPin, LOW);
 }
-void activateSystem()
-{
+
+bool isSwitchActivated() {
+  return digitalRead(switchPin) == LOW;
+}
+
+void startLightingSystem() {
   systemActive = true;
   startTime = millis();
   digitalWrite(porchLightPin, HIGH);
   digitalWrite(hallLightPin, HIGH);
 }
 
-// Checks if the button is pressed
-bool isButtonPressed() 
-{
-  return digitalRead(buttonPin) == LOW;
-}
-void updateLights() 
-{
-  unsigned long elapsed = millis() - startTime;
-
-  if (elapsed >= porchDuration) {
+void updatePorchLight(unsigned long elapsedTime) {
+  if (elapsedTime >= porchDuration) {
     digitalWrite(porchLightPin, LOW);
   }
+}
 
-  if (elapsed >= hallDuration) {
+void updateHallLight(unsigned long elapsedTime) {
+  if (elapsedTime >= hallDuration) {
     digitalWrite(hallLightPin, LOW);
     systemActive = false;
   }
 }
 
-void setup() 
-{
+void updateLights() {
+  if (systemActive) {
+    unsigned long elapsedTime = millis() - startTime;
+    updatePorchLight(elapsedTime);
+    updateHallLight(elapsedTime);
+  }
+}
+
+void checkSwitch() {
+  bool currentSwitchState = digitalRead(switchPin);
+
+  if (lastSwitchState == HIGH && currentSwitchState == LOW && !systemActive) {
+    startLightingSystem();
+  }
+
+  lastSwitchState = currentSwitchState;
+}
+
+void setup() {
   setupPins();
 }
 
-void loop() 
-  {
-    if (isButtonPressed() && !systemActive) {
-    activateSystem();
-  }
-
-  if (systemActive) 
-{
-    updateLights();
-  }
+void loop() {
+  checkSwitch();
+  updateLights();
 }
