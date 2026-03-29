@@ -18,7 +18,7 @@ void setupPins()
   digitalWrite(porchLightPin, LOW);
   digitalWrite(hallLightPin, LOW);
 }
-
+void activateSystem()
 {
   systemActive = true;
   startTime = millis();
